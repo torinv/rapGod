@@ -8,6 +8,12 @@ import datetime
 import tensorflow
 from tensorflow.python.lib.io import file_io
 import argparse
+import logging
+import os
+import cloudstorage as gcs
+import webapp2
+
+from google.appengine.api import app_identity
 
 def readLyrics(path):
     with io.open(path, 'r', encoding='utf8') as f:
@@ -24,7 +30,7 @@ def build_model(sequence_length, chars):
     return model
 
 
-def train_model(train_file='gs://rapgodbucket/test1.txt', job_dir='gs://rapgodducket/testjob5', **args):
+def train_model(train_file='gs://rapgodbucket/test1.txt', job_dir='gs://rapgodducket/testjob7', **args):
     seqLength = 40
     seqStep = 3
     epochs = 10
@@ -33,6 +39,7 @@ def train_model(train_file='gs://rapgodbucket/test1.txt', job_dir='gs://rapgoddu
     gcs_file = gcs.open(train_file)
     text = gcs_file.read()  
     chars = sorted(list(set(text)))
+    gcs_file.close()
 
 
     #Make input sequences

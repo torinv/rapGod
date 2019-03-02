@@ -5,6 +5,7 @@ REQUIRED_PACKAGES = [
   'tensorflow',
   'keras',
   'h5py',
+  'cloudstorage',
 ]
 
 setup(
