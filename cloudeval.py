@@ -100,9 +100,6 @@ try:
                 sys.stdout.flush()
             print()
 
-except HTMLParseError:
-    pass
-
 
 
 if __name__ == '__main__':
