@@ -78,62 +78,6 @@ def train_model(train_file='gs://rapgodbucket/halflyrics.txt', job_dir='gs://rap
             with file_io.FileIO(job_dir + '/model.h5', mode='w+') as output_f:
                 output_f.write(input_f.read())
 
-    
-    for diversity in [0.2, 0.5, 1.0, 1.2]:
-        print()
-        print('----- diversity:', diversity)
-
-        generated = ''
-    #choose random sentence number for seed
-        sentenceChoice = random.randint(0, 5)
-
-        if sentenceChoice == 1:
-            sentence = "Hey my name is Torin and I'm here to say"
-        elif sentenceChoice == 2:
-            sentence = "Hey my name is Reed and I'm here to say "
-        elif sentenceChoice == 3:
-            sentence = "This is not rap, this is just a test of "
-        elif sentenceChoice == 4:
-            sentence = "This rap was coded, ya better believe it"
-        elif sentenceChoice == 5:
-            sentence = "I really hope this thing works, starting"
-
-        sentence = sentence.lower()
-        generated += sentence
-
-        print('----- Generating with seed: "' + sentence + '"')
-        sys.stdout.write(generated)
-
-        for i in range(400):
-            x = np.zeros((1, seqLength, len(chars)))
-            for t, char in enumerate(sentence):
-                x[0, t, char_to_index[char]] = 1.
-
-            predictions = model.predict(x, verbose=0)[0]
-
-            temperature=1.0
-            preds = predictions
-            if temperature == 0:
-                temperature = 1
-            preds = np.asarray(preds).astype('float64')
-            preds = np.log(preds) / temperature
-            exp_preds = np.exp(preds)
-            preds = exp_preds / np.sum(exp_preds)
-            probas = np.random.multinomial(1, preds, 1)
-            next_index = np.argmax(probas)
-
-            next_char = indices_char[next_index]
-
-            generated += next_char
-            sentence = sentence[1:] + next_char
-
-            sys.stdout.write(next_char)
-            sys.stdout.flush()
-        print()
-
-
-
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
