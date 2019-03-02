@@ -8,12 +8,7 @@ import datetime
 import tensorflow
 from tensorflow.python.lib.io import file_io
 import argparse
-import logging
-import os
-import cloudstorage as gcs
-import webapp2
 
-from google.appengine.api import app_identity
 
 def readLyrics(path):
     with io.open(path, 'r', encoding='utf8') as f:
@@ -30,16 +25,16 @@ def build_model(sequence_length, chars):
     return model
 
 
-def train_model(train_file='gs://rapgodbucket/test1.txt', job_dir='gs://rapgodducket/testjob7', **args):
+def train_model(train_file='gs://rapgodbucket/test1.txt', job_dir='gs://rapgodducket/testjob13', **args):
     seqLength = 40
     seqStep = 3
     epochs = 10
     
     #read lyrics and get chars
-    gcs_file = gcs.open(train_file)
-    text = gcs_file.read()  
+    text = file_io.read_file_to_string(train_file)
+    #gcs_file = gcs.open(train_file)
+    #text = gcs_file.read()  
     chars = sorted(list(set(text)))
-    gcs_file.close()
 
 
     #Make input sequences
@@ -67,12 +62,11 @@ def train_model(train_file='gs://rapgodbucket/test1.txt', job_dir='gs://rapgoddu
     model = build_model(seqLength, chars)
 
     #train
-    model.fit(X, y, batch_size=128, nb_epoch=epochs)
-    model.save("modelOutput.h5")
-
-    #save to cloud
-    with file_io.FileIO('model.h5', mode='r') as input_f:
-        with file_io.FileIO(job_dir + '/model.h5', mode='w+') as output_f:
+    model.fit(X, y, batch_size=128, nb_epoch=10)
+        
+    model.save('model.h5')
+    with file_io.FileIO('model.h5', mode='rb') as input_f:
+        with file_io.FileIO('gs://rapgodducket/model.h5', mode='wb+') as output_f:
             output_f.write(input_f.read())
 
 
