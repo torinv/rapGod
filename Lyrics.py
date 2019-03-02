@@ -27,33 +27,68 @@ def getTracksFromPlaylists():
 	# Open an output file
 	lyrics = open("lyrics.txt", "a")
 	# Get the JSON for the playlist and search each track/artist in Genius, then print to file
-	for i in range(0, 1048):
-		print("Dave's Raps: Track " + str(i + 1) + "/1048")
-		daves_results = sp.user_playlist_tracks(username, daves_playlist_id, fields="items(track(name,artists))", offset=i, limit=1) # Spotipy playlist query, incrementing by 1 offset each time
+	for i in range(0, 1000, 100):
+		daves_results = sp.user_playlist_tracks(username, daves_playlist_id, fields="items(track(name,artists))", offset=i) # Spotipy playlist query, incrementing by 1 offset each time
 
-		artist_name = daves_results["items"][0]["track"]["artists"][0]["name"] # Artist name index from JSON file
-		track_name = daves_results["items"][0]["track"]["name"] # Track name index from JSON file
-		track = genius.search_song(track_name, artist=artist_name) # Using genius API to pull song lyrics
+		for j in range(0, 100):
+			try:
+				print("Dave's Raps: Track " + str(i + j + 1) + "/1048")
+				artist_name = daves_results["items"][j]["track"]["artists"][0]["name"] # Artist name index from JSON file
+				track_name = daves_results["items"][j]["track"]["name"] # Track name index from JSON file
+				track = genius.search_song(track_name, artist=artist_name) # Using genius API to pull song lyrics
+				print(track.lyrics, file=lyrics)
+			except:
+				continue
 
-		print(track.lyrics, file=lyrics)
-	
-	# Same for other playlist
-	for i in range(0, 1523):
-		print("Pass Me the Aux: Track " + str(i + 1) + "/1523")
-		aux_results = sp.user_playlist_tracks(username, aux_playlist_id, fields="items(track(name,artists))", offset=i, limit=1)
+	# Spotipy playlist query, incrementing by 1 offset each time
+	daves_results = sp.user_playlist_tracks(
+	username, daves_playlist_id, fields="items(track(name,artists))", offset=1000)
 
-		artist_name = aux_results["items"][0]["track"]["artists"][0]["name"]
-		track_name = aux_results["items"][0]["track"]["name"]
-		track = genius.search_song(track_name, artist=artist_name)
+	for j in range(0, 48):
+		try:
+			print("Dave's Raps: Track " + str(j + 1001) + "/1048")
+			# Artist name index from JSON file
+			artist_name = daves_results["items"][j]["track"]["artists"][0]["name"]
+			# Track name index from JSON file
+			track_name = daves_results["items"][j]["track"]["name"]
+			# Using genius API to pull song lyrics
+			track = genius.search_song(track_name, artist=artist_name)
+			print(track.lyrics, file=lyrics)
+		except:
+			continue
 
-		print(track.lyrics, file=lyrics)
+
+	for i in range(0, 1500, 100):
+		# Spotipy playlist query, incrementing by 1 offset each time
+		aux_results = sp.user_playlist_tracks(username, aux_playlist_id, fields="items(track(name,artists))", offset=i)
+
+		for j in range(0, 100):
+			try:
+				print("Aux: Track " + str(i + j + 1) + "/1523")
+				# Artist name index from JSON file
+				artist_name = aux_results["items"][j]["track"]["artists"][0]["name"]
+				# Track name index from JSON file
+				track_name = aux_results["items"][j]["track"]["name"]
+				# Using genius API to pull song lyrics
+				track = genius.search_song(track_name, artist=artist_name)
+				print(track.lyrics, file=lyrics)
+			except:
+				continue
+
+	# Spotipy playlist query, incrementing by 1 offset each time
+	aux_results = sp.user_playlist_tracks(username, aux_playlist_id, fields="items(track(name,artists))", offset=1500)
+
+	for j in range(0, 23):
+		try:
+			print("Dave's Raps: Track " + str(j + 1501) + "/1523")
+			# Artist name index from JSON file
+			artist_name = aux_results["items"][j]["track"]["artists"][0]["name"]
+			# Track name index from JSON file
+			track_name = aux_results["items"][j]["track"]["name"]
+			# Using genius API to pull song lyrics
+			track = genius.search_song(track_name, artist=artist_name)
+			print(track.lyrics, file=lyrics)
+		except:
+			continue
 
 getTracksFromPlaylists()
-
-# Get lyrics and save to a txt file
-# artist = genius.search_artist("XXXTENTACION", max_songs=1)
-
-# song = genius.search_song("", artist.name)
-# print(song.lyrics, file=out)
-# artist.add_song(song)
-
