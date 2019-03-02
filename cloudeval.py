@@ -10,33 +10,19 @@ import argparse
 import random
 import sys
 
-
 def readLyrics(path):
     with io.open(path, 'r', encoding='utf8') as f:
         return f.read().lower()
 
-def build_model(sequence_length, chars):
-    model = Sequential()
-    model.add(LSTM(128, input_shape=(sequence_length, len(chars))))
-    model.add(Dense(len(chars)))
-    model.add(Activation('softmax'))
-
-    optimizer = RMSprop(lr=0.01)
-    model.compile(loss='categorical_crossentropy', optimizer=optimizer)
-    return model
-
 
 def train_model(**args):
     seqLength = 40
-    seqStep = 3
-    epochs = 25
-    diversity = 1.0
-    lyricsPath = "skiMaskTextSlumpGod.txt"
+    lyricsPath = "lyrics_filtered.txt"
     
     #read lyrics and get chars
     text = readLyrics(lyricsPath)  
     chars = sorted(list(set(text)))
-
+    '''
 
     #Make input sequences
     #create next_chars array for labeling
@@ -46,9 +32,9 @@ def train_model(**args):
         sequences.append(text[i: i + seqLength])
         next_chars.append(text[i + seqLength])
 
-
+    '''
     char_to_index, indices_char = dict((c, i) for i, c in enumerate(chars)), dict((i, c) for i, c in enumerate(chars))
-
+    '''
 
     #vectorise characters and strings
     X = np.zeros((len(sequences), seqLength, len(chars)), dtype=np.bool)
@@ -61,28 +47,17 @@ def train_model(**args):
 
     #model struct
     model = build_model(seqLength, chars)
-
+    '''
     #read
     model = load_model("skiModelTheSlumpGod.h5")
 
-    
+        
     for diversity in [.35]:
         print()
         generated = ''
     #choose random sentence number for seed
-        sentenceChoice = random.randint(0, 5)
-
-        if sentenceChoice == 1:
-            sentence = "Hey my name is Torin and I'm here to say"
-        elif sentenceChoice == 2:
-            sentence = "Hey my name is Reed and I'm here to say "
-        elif sentenceChoice == 3:
-            sentence = "This is not rap, this is just a test of "
-        elif sentenceChoice == 4:
-            sentence = "This rap was coded, ya better believe it"
-        elif sentenceChoice == 5:
-            sentence = "I really hope this thing works, starting"
-
+        sentence = "Hey my name is Torin and Im here to say "
+        
         sentence = sentence.lower()
         generated += sentence
         sys.stdout.write(generated)
