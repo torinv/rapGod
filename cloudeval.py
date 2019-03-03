@@ -72,19 +72,20 @@ def train_model(**args):
     model = build_model(seqLength, chars)
     '''
     #read
-    model = load_model("model-25.h5")
+    model = load_model("model-27.h5")
 
-    verse = random(1, 10)
+    verse = 1
     for diversity in [0.25, 0.3, 0.35, 0.4, 0.45, 0.5]:
         print()
         generated = ''
-        
+        verse = random.randint(1, 10)
+
         if verse == 1:
             sentence = "I got hoes calling a young brother phone"
         elif verse == 2:
             sentence = "Young rapGod and Im getting really rich "
         elif verse == 3:
-            sentence = "Goin on you with the pick and roll Young "
+            sentence = "Goin on you with the pick and roll Young"
         elif verse == 4:
             sentence = "Shes in love with who I am Back in high "
         elif verse == 5:
