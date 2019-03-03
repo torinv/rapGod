@@ -14,7 +14,9 @@ import io
 import tensorflow as tf
 import datetime
 import argparse
+import pyttsx3
 import random
+from tensorflow.python.lib.io import file_io
 
 #KILL ERROR MESSAGES
 tf.logging.set_verbosity(tf.logging.FATAL)
@@ -74,8 +76,10 @@ def train_model(**args):
     #read
     model = load_model("model-30.h5")
 
+    f = open("output.txt", "w")
+
     verse = 1
-    for diversity in [0.35]:
+    for diversity in [0.35]: # Change this number for diversity
         print()
         generated = ''
         verse = random.randint(1, 10)
@@ -104,7 +108,7 @@ def train_model(**args):
         generated += sentence
         sys.stdout.write(generated)
 
-        for i in range(2000):
+        for i in range(2000): # Change this range to generate more characters
             x = np.zeros((1, seqLength, len(chars)))
             for t, char in enumerate(sentence):
                 x[0, t, char_to_index[char]] = 1.
@@ -116,10 +120,12 @@ def train_model(**args):
             generated += next_char
             sentence = sentence[1:] + next_char
 
-            sys.stdout.write(next_char)
+            print(next_char, file=f, end="")
+            print(next_char, end="")
             sys.stdout.flush()
         print()
         print()
+        f.close()
 
 
 if __name__ == "__main__":
@@ -129,3 +135,8 @@ if __name__ == "__main__":
     arguments = args.__dict__
     
     train_model(**arguments)
+    # This stuff reads the output out loud
+    engine = pyttsx3.init(driverName="nsss")
+    engine.say(file_io.read_file_to_string("output.txt"))
+
+    engine.runAndWait()
