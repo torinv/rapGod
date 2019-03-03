@@ -68,7 +68,7 @@ def train_model(**args):
     model.fit(X, y, batch_size=128, nb_epoch=epochs, callbacks=callbacks_list)  
 
 
-    model.save('skiModelTheSlumpGod.h5')
+    model.save('finalModel.h5')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

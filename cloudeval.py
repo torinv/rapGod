@@ -107,6 +107,7 @@ def train_model(**args):
         sentence = sentence.lower()
         generated += sentence
         sys.stdout.write(generated)
+        print(generated, file=f, end="")
 
         for i in range(2000): # Change this range to generate more characters
             x = np.zeros((1, seqLength, len(chars)))
