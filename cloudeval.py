@@ -25,6 +25,18 @@ def readLyrics(path):
     with io.open(path, 'r', encoding='utf8') as f:
         return f.read().lower()
 
+def sample(preds, temperature=1.0):
+
+    if temperature == 0:
+        temperature = 1
+
+    preds = np.asarray(preds).astype('float64')
+    preds = np.log(preds.clip(min=0.0000000000001)) / temperature
+    exp_preds = np.exp(preds)
+    preds = exp_preds / np.sum(exp_preds)
+    probas = np.random.multinomial(1, preds, 1)
+    return np.argmax(probas)
+
 
 def train_model(**args):
     seqLength = 40
@@ -60,37 +72,44 @@ def train_model(**args):
     model = build_model(seqLength, chars)
     '''
     #read
-    model = load_model("skiModelTheSlumpGod.h5")
+    model = load_model("model-25.h5")
 
-        
-    for diversity in [.35]:
+    verse = random(1, 10)
+    for diversity in [0.25, 0.3, 0.35, 0.4, 0.45, 0.5]:
         print()
         generated = ''
-    #choose random sentence number for seed
-        sentence = "Hey my name is Torin and Im here to say "
         
+        if verse == 1:
+            sentence = "I got hoes calling a young brother phone"
+        elif verse == 2:
+            sentence = "Young rapGod and Im getting really rich "
+        elif verse == 3:
+            sentence = "Goin on you with the pick and roll Young "
+        elif verse == 4:
+            sentence = "Shes in love with who I am Back in high "
+        elif verse == 5:
+            sentence = "Kiki do you love me Are you riding Say y"
+        elif verse == 6:
+            sentence = "Its everyday bro with the Disney Channel"
+        elif verse == 7:
+            sentence = "I got loyalty got royalty inside my DNA "
+        elif verse == 8:
+            sentence = "I get those goosebumps every time yeah y"
+        elif verse == 9:
+            sentence = "Draco got that kickback when I blow that"
+        else:
+            sentence = "I am the one dont weigh a ton Dont need "
         sentence = sentence.lower()
         generated += sentence
         sys.stdout.write(generated)
 
-        for i in range(400):
+        for i in range(1000):
             x = np.zeros((1, seqLength, len(chars)))
             for t, char in enumerate(sentence):
                 x[0, t, char_to_index[char]] = 1.
 
             predictions = model.predict(x, verbose=0)[0]
-
-            temperature=1.0
-            preds = predictions
-            if temperature == 0:
-                temperature = 1
-            preds = np.asarray(preds).astype('float64')
-            preds = np.log(preds) / temperature
-            exp_preds = np.exp(preds)
-            preds = exp_preds / np.sum(exp_preds)
-            probas = np.random.multinomial(1, preds, 1)
-            next_index = np.argmax(probas)
-
+            next_index = sample(predictions, diversity)
             next_char = indices_char[next_index]
 
             generated += next_char
@@ -98,6 +117,7 @@ def train_model(**args):
 
             sys.stdout.write(next_char)
             sys.stdout.flush()
+        print()
         print()
 
 

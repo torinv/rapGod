@@ -26,15 +26,15 @@ def build_model(sequence_length, chars):
     model.add(Activation('softmax'))
 
     optimizer = RMSprop(lr=0.01)
-    model.compile(loss='categorical_crossentropy', optimizer=optimizer)
+    model.compile(loss='categorical_crossentropy', optimizer='adam')
     return model
 
 
-def train_model(train_file='gs://rapgodbucket/halflyrics.txt', job_dir='gs://rapgodbucket/jobFinal', **args):
+def train_model(train_file='gs://rapgodbucket/halflyrics.txt', job_dir='gs://rapgodbucket/jobFinal2', **args):
 
     seqLength = 40
     seqStep = 3
-    epochs = 1
+    epochs = 20
     diversity = 1.0
     count = 1
     characters = file_io.read_file_to_string('gs://rapgodbucket/lyrics_filtered.txt')

@@ -4,6 +4,7 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
+from keras.callbacks import ModelCheckpoint
 import io
 import datetime
 import argparse
@@ -22,17 +23,17 @@ def build_model(sequence_length, chars):
     model.add(Activation('softmax'))
 
     optimizer = RMSprop(lr=0.01)
-    model.compile(loss='categorical_crossentropy', optimizer=optimizer)
+    model.compile(loss='categorical_crossentropy', optimizer='adam')
     return model
 
 
 def train_model(**args):
     seqLength = 40
     seqStep = 3
-    epochs = 20
+    epochs = 30
     
     #read lyrics and get chars
-    text = readLyrics('splitLyrics/lyrics_filtered_1.txt')  
+    text = readLyrics('lyrics_filtered.txt')  
     chars = sorted(list(set(text)))
 
 
@@ -60,8 +61,11 @@ def train_model(**args):
     #model struct
     model = build_model(seqLength, chars)
 
+    fpmodelcheckpoint = "model-{epoch:02d}.h5"
+    checkpoint = ModelCheckpoint(fpmodelcheckpoint, monitor='val_acc', verbose=1, save_best_only=False, mode='max')
+    callbacks_list = [checkpoint]
     #train
-    model.fit(X, y, batch_size=128, nb_epoch=epochs)  
+    model.fit(X, y, batch_size=128, nb_epoch=epochs, callbacks=callbacks_list)  
 
 
     model.save('skiModelTheSlumpGod.h5')
