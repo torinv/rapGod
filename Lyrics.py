@@ -80,7 +80,7 @@ def getTracksFromPlaylists():
 
 	for j in range(0, 23):
 		try:
-			print("Dave's Raps: Track " + str(j + 1501) + "/1523")
+			print("Aux: Track " + str(j + 1501) + "/1523")
 			# Artist name index from JSON file
 			artist_name = aux_results["items"][j]["track"]["artists"][0]["name"]
 			# Track name index from JSON file
