@@ -72,7 +72,7 @@ def train_model(**args):
     model = build_model(seqLength, chars)
     '''
     #read
-    model = load_model("model-27.h5")
+    model = load_model("model-30.h5")
 
     verse = 1
     for diversity in [0.25, 0.3, 0.35, 0.4, 0.45, 0.5]:
