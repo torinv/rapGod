@@ -1,42 +1,51 @@
 from __future__ import print_function
 import numpy as np
+import sys
+import os
+stderr = sys.stderr
+sys.stderr = open(os.devnull, 'w')
+import keras
+sys.stderr = stderr
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
 import io
+import tensorflow as tf
 import datetime
 import argparse
 import random
-import sys
+
+#KILL ERROR MESSAGES
+tf.logging.set_verbosity(tf.logging.FATAL)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 def readLyrics(path):
     with io.open(path, 'r', encoding='utf8') as f:
         return f.read().lower()
 
-def build_model(sequence_length, chars):
-    model = Sequential()
-    model.add(LSTM(128, input_shape=(sequence_length, len(chars))))
-    model.add(Dense(len(chars)))
-    model.add(Activation('softmax'))
+def sample(preds, temperature=1.0):
 
-    optimizer = RMSprop(lr=0.01)
-    model.compile(loss='categorical_crossentropy', optimizer=optimizer)
-    return model
+    if temperature == 0:
+        temperature = 1
+
+    preds = np.asarray(preds).astype('float64')
+    preds = np.log(preds.clip(min=0.0000000000001)) / temperature
+    exp_preds = np.exp(preds)
+    preds = exp_preds / np.sum(exp_preds)
+    probas = np.random.multinomial(1, preds, 1)
+    return np.argmax(probas)
 
 
 def train_model(**args):
     seqLength = 40
-    seqStep = 3
-    epochs = 25
-    diversity = 1.0
-    lyricsPath = "skiMaskTextSlumpGod.txt"
+    lyricsPath = "lyrics_filtered.txt"
     
     #read lyrics and get chars
     text = readLyrics(lyricsPath)  
     chars = sorted(list(set(text)))
-
+    '''
 
     #Make input sequences
     #create next_chars array for labeling
@@ -46,9 +55,9 @@ def train_model(**args):
         sequences.append(text[i: i + seqLength])
         next_chars.append(text[i + seqLength])
 
-
+    '''
     char_to_index, indices_char = dict((c, i) for i, c in enumerate(chars)), dict((i, c) for i, c in enumerate(chars))
-
+    '''
 
     #vectorise characters and strings
     X = np.zeros((len(sequences), seqLength, len(chars)), dtype=np.bool)
@@ -61,50 +70,47 @@ def train_model(**args):
 
     #model struct
     model = build_model(seqLength, chars)
-
+    '''
     #read
-    model = load_model("skiModelTheSlumpGod.h5")
+    model = load_model("model-30.h5")
 
-    
-    for diversity in [.35]:
+    verse = 1
+    for diversity in [0.35]:
         print()
         generated = ''
-    #choose random sentence number for seed
-        sentenceChoice = random.randint(0, 5)
+        verse = random.randint(1, 10)
 
-        if sentenceChoice == 1:
-            sentence = "Hey my name is Torin and I'm here to say"
-        elif sentenceChoice == 2:
-            sentence = "Hey my name is Reed and I'm here to say "
-        elif sentenceChoice == 3:
-            sentence = "This is not rap, this is just a test of "
-        elif sentenceChoice == 4:
-            sentence = "This rap was coded, ya better believe it"
-        elif sentenceChoice == 5:
-            sentence = "I really hope this thing works, starting"
-
+        if verse == 1:
+            sentence = "I got hoes calling a young brother phone"
+        elif verse == 2:
+            sentence = "Young rapGod and Im getting really rich "
+        elif verse == 3:
+            sentence = "Goin on you with the pick and roll Young"
+        elif verse == 4:
+            sentence = "Shes in love with who I am Back in high "
+        elif verse == 5:
+            sentence = "Kiki do you love me Are you riding Say y"
+        elif verse == 6:
+            sentence = "Its everyday bro with the Disney Channel"
+        elif verse == 7:
+            sentence = "I got loyalty got royalty inside my DNA "
+        elif verse == 8:
+            sentence = "I get those goosebumps every time yeah y"
+        elif verse == 9:
+            sentence = "Draco got that kickback when I blow that"
+        else:
+            sentence = "I am the one dont weigh a ton Dont need "
         sentence = sentence.lower()
         generated += sentence
         sys.stdout.write(generated)
 
-        for i in range(400):
+        for i in range(2000):
             x = np.zeros((1, seqLength, len(chars)))
             for t, char in enumerate(sentence):
                 x[0, t, char_to_index[char]] = 1.
 
             predictions = model.predict(x, verbose=0)[0]
-
-            temperature=1.0
-            preds = predictions
-            if temperature == 0:
-                temperature = 1
-            preds = np.asarray(preds).astype('float64')
-            preds = np.log(preds) / temperature
-            exp_preds = np.exp(preds)
-            preds = exp_preds / np.sum(exp_preds)
-            probas = np.random.multinomial(1, preds, 1)
-            next_index = np.argmax(probas)
-
+            next_index = sample(predictions, diversity)
             next_char = indices_char[next_index]
 
             generated += next_char
@@ -113,12 +119,10 @@ def train_model(**args):
             sys.stdout.write(next_char)
             sys.stdout.flush()
         print()
+        print()
 
 
-
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     args = parser.parse_args()

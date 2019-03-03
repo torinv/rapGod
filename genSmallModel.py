@@ -4,15 +4,12 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout
 from keras.layers import LSTM
 from keras.optimizers import RMSprop
+from keras.callbacks import ModelCheckpoint
 import io
 import datetime
-import tensorflow as tf
-from tensorflow.python.lib.io import file_io
-from tensorflow.python.client import device_lib
 import argparse
 import random
 import sys
-
 
 
 def readLyrics(path):
@@ -30,24 +27,14 @@ def build_model(sequence_length, chars):
     return model
 
 
-def train_model(train_file='gs://rapgodbucket/halflyrics.txt', job_dir='gs://rapgodbucket/jobFinal2', **args):
-
+def train_model(**args):
     seqLength = 40
     seqStep = 3
-    epochs = 20
-    diversity = 1.0
-    count = 1
-    characters = file_io.read_file_to_string('gs://rapgodbucket/lyrics_filtered.txt')
-    chars = sorted(list(set(characters)))
-    #model struct
-    model = build_model(seqLength, chars)
+    epochs = 30
     
-
     #read lyrics and get chars
-    text = file_io.read_file_to_string('gs://rapgodbucket/lyrics_filtered.txt')
-    #gcs_file = gcs.open(train_file)
-    #text = gcs_file.read()  
-    
+    text = readLyrics('lyrics_filtered.txt')  
+    chars = sorted(list(set(text)))
 
 
     #Make input sequences
@@ -59,7 +46,7 @@ def train_model(train_file='gs://rapgodbucket/halflyrics.txt', job_dir='gs://rap
         next_chars.append(text[i + seqLength])
 
 
-    char_to_index, indices_char = dict((c, i) for i, c in enumerate(chars)), dict((i, c) for i, c in enumerate(chars))
+    char_to_index = dict((c, i) for i, c in enumerate(chars))
 
 
     #vectorise characters and strings
@@ -70,31 +57,23 @@ def train_model(train_file='gs://rapgodbucket/halflyrics.txt', job_dir='gs://rap
             X[i, t, char_to_index[char]] = 1
         y[i, char_to_index[next_chars[i]]] = 1
 
+
+    #model struct
+    model = build_model(seqLength, chars)
+
+    fpmodelcheckpoint = "model-{epoch:02d}.h5"
+    checkpoint = ModelCheckpoint(fpmodelcheckpoint, monitor='val_acc', verbose=1, save_best_only=False, mode='max')
+    callbacks_list = [checkpoint]
     #train
-    model.fit(X, y, batch_size=256, nb_epoch=epochs)
+    model.fit(X, y, batch_size=128, nb_epoch=epochs, callbacks=callbacks_list)  
 
-    model.save('model.h5')
-    with file_io.FileIO('model.h5', mode='r') as input_f:
-        with file_io.FileIO(job_dir + '/model.h5', mode='w+') as output_f:
-            output_f.write(input_f.read())
 
+    model.save('skiModelTheSlumpGod.h5')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    # Input Arguments
-    parser.add_argument(
-      '--train-file',
-      help='GCS or local paths to training data',
-      required=True
-    )
 
-    parser.add_argument(
-      '--job-dir',
-      help='GCS location to write checkpoints and export models',
-      required=True
-    )
     args = parser.parse_args()
     arguments = args.__dict__
-    job_dir = arguments.pop('job_dir')
     
     train_model(**arguments)
