@@ -75,7 +75,7 @@ def train_model(**args):
     model = load_model("model-30.h5")
 
     verse = 1
-    for diversity in [0.25, 0.3, 0.35, 0.4, 0.45, 0.5]:
+    for diversity in [0.35]:
         print()
         generated = ''
         verse = random.randint(1, 10)
@@ -104,7 +104,7 @@ def train_model(**args):
         generated += sentence
         sys.stdout.write(generated)
 
-        for i in range(1000):
+        for i in range(2000):
             x = np.zeros((1, seqLength, len(chars)))
             for t, char in enumerate(sentence):
                 x[0, t, char_to_index[char]] = 1.
