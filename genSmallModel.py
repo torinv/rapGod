@@ -27,13 +27,12 @@ def build_model(sequence_length, chars):
     return model
 
 
-def train_model(**args):
+def train_model(model_filename, input_file, epochs):
     seqLength = 40
     seqStep = 3
-    epochs = 30
     
     #read lyrics and get chars
-    text = readLyrics('lyrics_filtered.txt')  
+    text = readLyrics(input_file + '.txt')  
     chars = sorted(list(set(text)))
 
 
@@ -61,19 +60,13 @@ def train_model(**args):
     #model struct
     model = build_model(seqLength, chars)
 
-    fpmodelcheckpoint = "model-{epoch:02d}.h5"
+    fpmodelcheckpoint = model_filename + "-{epoch:02d}.h5"
     checkpoint = ModelCheckpoint(fpmodelcheckpoint, monitor='val_acc', verbose=1, save_best_only=False, mode='max')
     callbacks_list = [checkpoint]
     #train
     model.fit(X, y, batch_size=128, nb_epoch=epochs, callbacks=callbacks_list)  
 
 
-    model.save('finalModel.h5')
+    model.save(model_filename + '-finalModel.h5')
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-
-    args = parser.parse_args()
-    arguments = args.__dict__
-    
-    train_model(**arguments)
+train_model("country_1", "country_filtered", 50)

@@ -42,7 +42,7 @@ def sample(preds, temperature=1.0):
 
 def train_model(**args):
     seqLength = 40
-    lyricsPath = "lyrics_filtered.txt"
+    lyricsPath = "rap_lyrics.txt"
     
     #read lyrics and get chars
     text = readLyrics(lyricsPath)  
@@ -79,7 +79,7 @@ def train_model(**args):
     f = open("output.txt", "w")
 
     verse = 1
-    for diversity in [0.35]: # Change this number for diversity
+    for diversity in [0.3]: # Change this number for diversity
         print()
         generated = ''
         verse = random.randint(1, 10)
